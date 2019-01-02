@@ -1,0 +1,10 @@
+# System files
+!.gitignore
+*/.DS_Store
+.DS_Store
+
+# python
+__pycache__
+
+# Folders
+*futures*
