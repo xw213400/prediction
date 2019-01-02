@@ -30,11 +30,38 @@ class Contract:
             record.openInterest = int(words[7])
             record.settlement = float(words[8])
 
-    def __validVolume(self, datas):
-        for record in datas:
-            if record.volume < 10:
-                return False
-        return True
+    def __validVolume(self, records):
+        volume = 0
+        for record in records:
+            volume += record.volume
+
+        return volume > len(records) * 10 
+        
+
+    def __getData(self, ri, ro):
+        datai = []
+        datao = []
+        open0 = ri[0].open
+        volume0 = ri[0].volume
+        openInterest0 = ri[0].openInterest
+
+        for record in ri:
+            d = []
+            d.append(record.open / open0)
+            d.append(record.high / open0)
+            d.append(record.low / open0)
+            d.append(record.close / open0)
+            d.append(record.volume / volume0)
+            d.append(record.openInterest / openInterest0)
+            d.append(record.settlement / open0)
+            datai.append(d)
+
+        close0 = ri[-1].close
+
+        for record in ro:
+            datao.append(record.close / close0)
+
+        return datai, datao
 
     def getDataset(self, ni, no):
         inputs = []
@@ -44,15 +71,15 @@ class Contract:
         n = i + ni + no
 
         while n <= N:
-            di = self.records[i:i+ni]
-            do = self.records[i+ni:n]
+            ri = self.records[i:i+ni]
+            ro = self.records[i+ni:n]
 
-            if self.__validVolume(di) and self.__validVolume(do):
+            if self.__validVolume(ri) and self.__validVolume(ro):
+                di, do = self.__getData(ri, ro)
                 inputs.append(di)
                 output.append(do)
 
             i += 1
             n += 1
-            if abs(self.records[n].time - self.records[n-1].time) > 0.03:
-                i = n
-                n = i + ni + no
+
+        return inputs, output
