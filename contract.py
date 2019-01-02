@@ -20,7 +20,7 @@ class Contract:
         for line in text.readlines():
             record = Record()
             words = line.split()
-            record.date = int(words[0].strip('/'))
+            record.date = int(words[0].replace('/', ''))
             record.time = float('0.' + words[1])
             record.open = float(words[2])
             record.high = float(words[3])
@@ -29,6 +29,7 @@ class Contract:
             record.volume = int(words[6])
             record.openInterest = int(words[7])
             record.settlement = float(words[8])
+            self.records.append(record)
 
     def __validVolume(self, records):
         volume = 0
@@ -36,36 +37,41 @@ class Contract:
             volume += record.volume
 
         return volume > len(records) * 10 
-        
+
+    def __scaleNumber(self, number):
+        return (number - 1) * 1000
 
     def __getData(self, ri, ro):
         datai = []
         datao = []
         open0 = ri[0].open
         volume0 = ri[0].volume
+        if volume0 == 0:
+            volume0 = 1
         openInterest0 = ri[0].openInterest
+        if openInterest0 == 0:
+            openInterest0 = 1
 
         for record in ri:
             d = []
-            d.append(record.open / open0)
-            d.append(record.high / open0)
-            d.append(record.low / open0)
-            d.append(record.close / open0)
-            d.append(record.volume / volume0)
-            d.append(record.openInterest / openInterest0)
-            d.append(record.settlement / open0)
+            d.append(self.__scaleNumber(record.open / open0))
+            d.append(self.__scaleNumber(record.high / open0))
+            d.append(self.__scaleNumber(record.low / open0))
+            d.append(self.__scaleNumber(record.close / open0))
+            d.append(self.__scaleNumber(record.volume / volume0))
+            d.append(self.__scaleNumber(record.openInterest / openInterest0))
+            d.append(self.__scaleNumber(record.settlement / open0))
             datai.append(d)
 
-        close0 = ri[-1].close
+        close0 = ro[0].open
 
         for record in ro:
-            datao.append(record.close / close0)
+            datao.append(self.__scaleNumber(record.close / close0))
 
-        return datai, datao
+        return {'I':datai, 'O':datao}
 
     def getDataset(self, ni, no):
-        inputs = []
-        output = []
+        datas = []
         N = len(self.records)
         i = 0
         n = i + ni + no
@@ -75,11 +81,10 @@ class Contract:
             ro = self.records[i+ni:n]
 
             if self.__validVolume(ri) and self.__validVolume(ro):
-                di, do = self.__getData(ri, ro)
-                inputs.append(di)
-                output.append(do)
+                d = self.__getData(ri, ro)
+                datas.append(d)
 
             i += 1
             n += 1
 
-        return inputs, output
+        return datas
