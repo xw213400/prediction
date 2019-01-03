@@ -9,7 +9,7 @@ import torch.optim as optim
 import random
 import math
 
-ILen = 20
+ILen = 100
 OLen = 1
 DEBUG = False
 
@@ -70,7 +70,7 @@ class Conv(nn.Module):
 def train(datas, net, epoch):
     global DEBUG
     criterion = nn.MSELoss()
-    optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.SGD(net.parameters(), lr=0.0001, momentum=0.9)
 
     # if torch.cuda.is_available():
     #     criterion = criterion.cuda()

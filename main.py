@@ -28,6 +28,7 @@ def main():
             n = len(datas)
             datas.sort(key = lambda rec: abs(rec.output), reverse = True)
             train(datas[0:int(n/10)])
+            # train(datas)
 
 
 if __name__ == '__main__':
