@@ -8,4 +8,4 @@ __pycache__
 
 # Folders
 *futures*
-data
+*.txt
