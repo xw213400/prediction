@@ -3,24 +3,22 @@ import math
 
 class Grid:
     # 400000, 55, 0.125, 8
-    def __init__(self, period, cost, positions, band):
-        self.period = period
-        self.band1 = band1
-        self.band2 = band2
+    def __init__(self, tickprice, cost):
+        self.tickprice = tickprice
         self.cost = cost
-        
         self.short = 0
         self.buy = 0
-        self.cost = 0
-
         self.MA = 0
         self.trade = 0
 
-    def init(self, period, delta, step):
+    def init(self, period, steps, band):
         self.period = period
-        self.band = delta * 2 / step
-        self.trade = 0
+        self.steps = steps
+        self.band = band
 
+        self.position = 0
+        self.MA = 0
+        self.trade = 0
 
     def updatePosition(self, price, isOpen=False):
         bandPosition = round(

@@ -29,12 +29,12 @@ def main():
         st = stock.Stock(text)
         py = policy.Policy(400000)
 
-        #10, 4, 0.052, 1.2997
+        #10, 4, 0.056, 1.2997
 
-        py.init(10, 0.052, 4)
+        py.init(10, 0.056, 4)
         history = py.traceback(st.bars)
         print(history[-1])
-        # draw(history)
+        draw(history)
 
         # scores = []
         # for i in range(10):
