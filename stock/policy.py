@@ -17,7 +17,7 @@ class Policy:
         self.steps = steps
         self.trade = 0
 
-    def updatePosition(self, price, isOpen=False):
+    def updateLevel(self, price, isOpen=False):
         ma = round(self.MA * 1000) * 0.001
         unitShares = round(self.money / ma / self.steps * 0.01) * 100
         unitPrice = ma * self.unitRatio
@@ -105,10 +105,10 @@ class Policy:
             # print("%d, %.3f, %.3f, %.3f, %.3f, MA:%.3f" %
             #       (bar.date, bar.open, bar.high, bar.low, bar.close, self.MA))
 
-            self.updatePosition(bar.open, True)
-            self.updatePosition(bar.high)
-            self.updatePosition(bar.low)
-            self.updatePosition(bar.close)
+            self.updateLevel(bar.open, True)
+            self.updateLevel(bar.low)
+            self.updateLevel(bar.high)
+            self.updateLevel(bar.close)
 
             i += 1
 

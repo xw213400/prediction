@@ -3,7 +3,6 @@
 import sys
 from os.path import isfile, join
 from os import listdir
-from matplotlib import pyplot as plt
 import stock
 import policy
 import numpy as np

@@ -1,118 +1,135 @@
 import math
+import contract
 
+TICK_PRICE = 1
+GRID_BAND = 0.005
+MA_BAND = 0.01
+COST = 0.5 * TICK_PRICE
+
+
+class GridOrder:
+    def __init__(self, direction):
+        self.price = 0
+        self.upper = 1 + GRID_BAND
+        self.lower = 1 - GRID_BAND
+        self.direction = direction
+        self.profit = 0
+
+    def floatProfit(self, price):
+        fp = 0
+        # if self.price > 0:
+        #     fp = (price - self.price)*self.direction
+        
+        return self.profit + fp
+    
+    def trade(self, ma, price, isOpen=False):
+        if self.direction == 1: #buy open & sell close
+            if self.price == 0:
+                mount = ma * self.lower
+                if price <= mount:
+                    if isOpen:
+                        mount = price
+                    self.price = math.ceil(mount/TICK_PRICE)*TICK_PRICE
+                    return {'op':'open', 'price':self.direction * self.price}
+            else:
+                mount = ma * self.upper
+                if price >= mount:
+                    if isOpen:
+                        mount = price
+                    p = math.floor(mount/TICK_PRICE)*TICK_PRICE
+                    self.profit += p - self.price - COST
+                    self.price = 0
+                    return {'op':'close', 'price':self.direction * p}
+        else:
+            if self.price == 0:
+                mount = ma * self.upper
+                if price >= mount:
+                    if isOpen:
+                        mount = price
+                    self.price = math.floor(mount/TICK_PRICE)*TICK_PRICE
+                    return {'op':'open', 'price':self.direction * self.price}
+            else:
+                mount = ma * self.lower
+                if price <= mount:
+                    if isOpen:
+                        mount = price
+                    p = math.ceil(mount/TICK_PRICE)*TICK_PRICE
+                    self.profit += self.price - p - COST
+                    self.price = 0
+                    return {'op':'close', 'price':self.direction * p}
+        return None
 
 class Grid:
     # 400000, 55, 0.125, 8
-    def __init__(self, tickprice, cost):
-        self.tickprice = tickprice
-        self.cost = cost
-        self.short = 0
-        self.buy = 0
-        self.MA = 0
-        self.trade = 0
+    def __init__(self):
+        pass
 
-    def init(self, period, steps, band):
+    def init(self, period, band):
+        global GRID_BAND
+        GRID_BAND = band
+
         self.period = period
-        self.steps = steps
-        self.band = band
-
-        self.position = 0
+        self.orders = [GridOrder(1), GridOrder(-1)]
         self.MA = 0
-        self.trade = 0
 
-    def updatePosition(self, price, isOpen=False):
-        bandPosition = round(
-            self.money / self.MA / self.step * 0.01) * 100
-        bandprice = self.MA * self.band
-        levelprice = self.MA + self.level * bandprice
-        levelprice = round(levelprice * 1000) * 0.001
+        self.profits = []
+        self.trades = []
+        self.dates = []
+        self.prices = []
+        self.mas = []
 
-        deltaLevel = math.floor(abs(price - levelprice) / bandprice)
-        d = 1
-        if price < levelprice:
-            d = -1
-            deltaLevel = -deltaLevel
+    def debugTrade(self):
+        for trade in self.trades:
+            print("%d, %s, %f" % (trade['date'], trade['op'], trade['price']))
 
-        maxlevel = math.floor(self.step / 2)
-
-        if self.level + deltaLevel > maxlevel:
-            deltaLevel = maxlevel - self.level
-        elif self.level + deltaLevel < -maxlevel:
-            deltaLevel = -maxlevel - self.level
-
-
-        if deltaLevel == 0:
-            return
-
-        if isOpen:
-            deltaPosition = math.floor(deltaLevel * bandPosition * 0.01) * 100
-            self.position -= deltaPosition
-            deltaCash = deltaPosition * price
-            cost = round(abs(deltaCash) * 0.02) * 0.01
-            if cost < 5:
-                cost = 5
-            self.cash += deltaCash
-            self.cash -= cost
-            self.level += deltaLevel
-            self.trade += 1
-
-            # print("%d, bp:%.3f, POS: %d, $: %.2f, ALL: %.2f\n" %
-            #         (self.trade, bandprice, self.position, self.cash, self.cash+self.position*price))
-        else:
-            n = abs(deltaLevel)
-            i = 1
-            while i < n:
-                deltaLevel = i * d
-                deltaPosition = math.floor(deltaLevel * bandPosition * 0.01) * 100
-                self.position -= deltaPosition
-                deltaCash = deltaPosition * (levelprice + deltaLevel * bandprice)
-
-                cost = round(abs(deltaCash) * 0.02) * 0.01
-                if cost < 5:
-                    cost = 5
-                self.cash += deltaCash
-                self.cash -= cost
-                self.level += deltaLevel
-                self.trade += 1
-                i+=1
-
-
-                # print("%d, bp:%.3f, POS: %d, $: %.2f, ALL: %.2f\n" %
-                #     (self.trade, bandprice, self.position, self.cash, self.cash+self.position*price))
+    def update(self, date, price, isOpen=False):
+        for order in self.orders:
+            trade = order.trade(self.MA, price, isOpen)
+            if trade is not None:
+                trade['date'] = date
+                self.trades.append(trade)
 
     def traceback(self, bars):
-        self.lastclose = self.firsclose = self.MA = bars[0].close
-        self.level = 0
-        self.position = round(self.money / self.MA * 0.5 * 0.01) * 100
-        self.cash = self.money - self.position * self.MA
-
         i = 1
         n = len(bars)
-        history = [1]
+        days = []
+
+        volume = bars[0].volume
+        start = False
 
         while i < n:
-            bar = bars[i-1]
-            if i <= self.period:
-                self.MA += (bar.close - self.MA) / (i+1)
-            else:
-                self.MA += (bar.close - bars[i-self.period-1].close) / self.period
-
-            self.MA = round(self.MA * 1000) * 0.001
-
+            lastbar = bars[i-1]
             bar = bars[i]
-
-            # print("%d, %.3f, %.3f, %.3f, %.3f, MA:%.3f" % (bar.date, bar.open, bar.high, bar.low, bar.close, self.MA))
-
-            self.updatePosition(bar.open, True)
-            self.updatePosition(bar.high)
-            self.updatePosition(bar.low)
-            self.updatePosition(bar.close)
-
             i += 1
 
-            win = (self.cash+self.position*bar.close)/self.money
-            history.append(win)
-        # print("period:%d, step:%d, m:%.4f" %
-        #       (self.period, self.step, win))
+            if bar.date != lastbar.date:
+                if len(days) < self.period:
+                    self.MA += (lastbar.close - self.MA) / (len(days)+1)
+                else:
+                    self.MA += (lastbar.close - days[-self.period]) / self.period
+                days.append(lastbar.close)
+                if volume > 1000:
+                    start = True
+                volume = 0
 
-        return history
+            volume += bar.volume
+
+            if not start:
+                continue
+
+            date = bar.date - 20180101
+
+            if self.MA > 0 and bar.volume >= 10:
+                self.update(date, bar.open, bar.date != lastbar.date)
+                self.update(date, bar.low)
+                self.update(date, bar.high)
+                self.update(date, bar.close)
+
+            if bar.date != lastbar.date:
+                self.dates.append(date)
+                self.prices.append(bar.close)
+                self.mas.append(self.MA)
+                profit = 0
+                for order in self.orders:
+                    profit += order.floatProfit(bar.close)
+                self.profits.append(profit)
