@@ -8,16 +8,16 @@ import gridma
 import numpy as np
 from matplotlib import pyplot as plt
 
-CONTRACT_TABLE = {
+CONTRACTS = {
     '28#FG1901.txt':{
         'tick':1,
         'cost':0.5,
-        'marg':3154 / 20
+        'marg':3154 / 20 / 2
     },
     '29#JM1901.txt': {
         'tick':0.5,
         'cost':0.25,
-        'marg':11366 / 60
+        'marg':11366 / 60 / 2
     }
 }
 
@@ -61,9 +61,11 @@ def tracebackall(cts, grid):
             band = 0.005 + 0.001 * k
             ctscores = 0
             for ct in cts:
+                gridma.TICK_PRICE = CONTRACTS[ct.name]['tick']
+                gridma.COST = CONTRACTS[ct.name]['cost']
                 grid.init(period, band)
                 grid.traceback(ct.bars)
-                ctscores += grid.profits[-1]
+                ctscores += grid.profits[-1] / CONTRACTS[ct.name]['marg']
             scores.append({'w':ctscores, 'p':period, 'b':band})
 
     scores.sort(key = lambda score: score['w'], reverse = True)
@@ -87,10 +89,10 @@ def main():
     files = [f for f in listdir('../futures-data') if f[-4:] == '.txt']
     for f in files:
         with open('../futures-data/'+f) as text:
-            gridma.TICK_PRICE = TICK_TABLE[f]
-            gridma.COST = 0.5 * gridma.TICK_PRICE
+            gridma.TICK_PRICE = CONTRACTS[f]['tick']
+            gridma.COST = CONTRACTS[f]['cost']
             ct = contract.Contract(f, text)
-            cts.push(cts)
+            cts.append(ct)
 
     tracebackall(cts, grid)
     
