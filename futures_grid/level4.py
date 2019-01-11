@@ -11,7 +11,6 @@ TICK_PRICE = 1
 SLIDE = 2 * TICK_PRICE
 COST = 0.5 * TICK_PRICE
 
-
 class GridOrder:
     def __init__(self, direction):
         self.name = 'grid'
@@ -77,12 +76,7 @@ class MAOrder:
         self.profit = 0
 
     def floatProfit(self, price):
-        fp = 0
-
-        if self.direction != 0:
-            fp = (price - self.price)*self.direction
-        
-        return self.profit + fp
+        return self.profit + (price - self.price)*self.direction
     
     def trade(self, ma, price, isOpen=False):
         upper = ma * self.upper
@@ -194,6 +188,6 @@ class Trader:
                 self.prices.append(bar.close)
                 profit = 0
                 for order in self.orders:
-                    profit += order.profit
-                    # profit += order.floatProfit(bar.close)
+                    # profit += order.profit
+                    profit += order.floatProfit(bar.close)
                 self.profits.append(profit)

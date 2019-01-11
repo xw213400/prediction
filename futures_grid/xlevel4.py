@@ -17,38 +17,40 @@ def draw(trader):
     # plt.plot(trader.dates, trader.mas)
     plt.show()
 
-def sharpe(history):
-    a = [1]
-    i = 1
-    while i < len(history):
-        a.append((history[i]+1000000)/(history[i-1]+1000000)-1)
-        i+=1
+def sharpe(profits, cash):
+    a = []
+    for p in profits:
+        a.append(p / cash)
     mean = np.mean(a)
     stdev = np.std(a)
+
+    if stdev != stdev or stdev == 0:
+        return 0
+
     return mean / stdev
 
-def optimize(ct, trader):
-    scores = []
-    for i in range(8):
-        period = 2 + i
-        for k in range(20):
-            band = 0.005 + 0.001 * k
-            trader.init(period, band)
-            trader.traceback(ct.bars)
-            scores.append({'w':trader.profits[-1], 'p':period, 'b':band, 'sp':sharpe(trader.profits), 'tn':len(trader.trades)})
+# def optimize(ct, trader):
+#     scores = []
+#     for i in range(8):
+#         period = 2 + i
+#         for k in range(20):
+#             band = 0.005 + 0.001 * k
+#             trader.init(period, band)
+#             trader.traceback(ct.bars)
+#             scores.append({'w':trader.profits[-1], 'p':period, 'b':band, 'sp':sharpe(trader.profits), 'tn':len(trader.trades)})
             # print("i:%d, k:%d" % (i, k))
 
-    scores.sort(key = lambda score: score['w'], reverse = True)
-    for i in range(10):
-        score = scores[i]
-        print("%d, %.3f, %.1f, %d" % (score['p'], score['b'], score['w'], score['tn']))
+    # scores.sort(key = lambda score: score['w'], reverse = True)
+    # for i in range(10):
+    #     score = scores[i]
+    #     print("%d, %.3f, %.1f, %d" % (score['p'], score['b'], score['w'], score['tn']))
 
 def optimizeGRID(cts, trader):
     scores1 = []
-    for i in range(5):
+    for i in range(3):
         level4.PERIOD_GRID = 2 + i
-        for j in range(10):
-            level4.BAND_GRID = 0.02 + 0.001 * j
+        for j in range(20):
+            level4.BAND_GRID = 0.022 + 0.001 * j
             ctscores = 0
             tradecount = 0
             for ct in cts:
@@ -73,10 +75,10 @@ def optimizeGRID(cts, trader):
 
 def optimizeMA(cts, trader):
     scores2 = []
-    for i in range(5):
-        level4.PERIOD_MA = 5 + i*3
-        for j in range(10):
-            level4.BAND_MA = 0.01 + 0.005 * j
+    for i in range(1):
+        level4.PERIOD_MA = 18 + i
+        for j in range(20):
+            level4.BAND_MA = 0.020 + 0.001 * j
             ctscores = 0
             tradecount = 0
             for ct in cts:
@@ -95,7 +97,7 @@ def optimizeMA(cts, trader):
 
     print('\n')
     scores2.sort(key = lambda score: score['w'], reverse = True)
-    for i in range(10):
+    for i in range(20):
         score = scores2[i]
         print("{%d, %.3f}\t%.4f\t%d" % (score['p'], score['b'], score['w'], score['tn']))
 
@@ -115,26 +117,48 @@ def main():
 
     trader = level4.Trader()
 
-    level4.PERIOD_MA = 14
-    level4.BAND_MA = 0.035
+    level4.PERIOD_MA = 18
+    level4.BAND_MA = 0.034
 
     level4.PERIOD_GRID = 3
-    level4.BAND_GRID = 0.03
+    level4.BAND_GRID = 0.036
 
-    # with open('../futures-data/30#PB1901.txt') as text:
-    #     ct = contract.Contract('JM', text)
+    # with open('../futures-data/28#MA1901.txt') as text:
+    #     ct = contract.Contract('MA', text)
 
-    for ct in cts:
-        level4.TICK_PRICE = CONTRACTS[ct.name]['tick']
-        level4.COST = level4.TICK_PRICE * 0.5
-        level4.SLIDE = level4.TICK_PRICE * 1
+    # sumsharpeM = 0
+    # sumsharpeG = 0
+    # sumsharpeA = 0
+    # for ct in cts:
 
-        trader.traceback(ct.bars, [level4.MAOrder()])
-        print("%s: %.3f, %d" % (ct.name, trader.profits[-1], len(trader.trades)))
-        # draw(trader)
+    #     ctt = CONTRACTS[ct.name]
+    #     level4.TICK_PRICE = ctt['tick']
+    #     level4.COST = level4.TICK_PRICE * 0.5
+    #     level4.SLIDE = level4.TICK_PRICE * 1
+    #     cash = ctt['marg'] * ctt['unit']
+
+    #     trader.traceback(ct.bars, [level4.GridOrder(1), level4.GridOrder(-1)])
+    #     sss = sharpe(trader.profits, cash)
+    #     sumsharpeG += sss
+    #     print("GRID:%s: %.3f, %d, %f" % (ct.name, trader.profits[-1], len(trader.trades), sss))
+    #     # draw(trader)
+
+    #     trader.traceback(ct.bars, [level4.MAOrder()])
+    #     sss = sharpe(trader.profits, cash)
+    #     sumsharpeM += sss
+    #     print("MA:  %s: %.3f, %d, %f" % (ct.name, trader.profits[-1], len(trader.trades), sss))
+    #     # draw(trader)
+
+    #     trader.traceback(ct.bars, [level4.GridOrder(1), level4.GridOrder(-1), level4.MAOrder()])
+    #     sss = sharpe(trader.profits, cash)
+    #     sumsharpeA += sss
+    #     print("ALL: %s: %.3f, %d, %f" % (ct.name, trader.profits[-1], len(trader.trades), sss))
+    #     # draw(trader)
+
+    # print("\n%f, %f, %f" % (sumsharpeG, sumsharpeM, sumsharpeA))
 
     # optimizeGRID(cts, trader)
-    # optimizeMA(cts, trader)
+    optimizeMA(cts, trader)
 
 
 if __name__ == '__main__':
