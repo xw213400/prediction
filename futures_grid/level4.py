@@ -175,7 +175,7 @@ class Trader:
             if not start:
                 continue
 
-            date = bar.date - 20180101
+            date = bar.date# - 20180101
 
             if bar.volume >= 10:
                 self.update(date, bar.open, True)

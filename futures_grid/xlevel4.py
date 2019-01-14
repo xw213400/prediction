@@ -108,12 +108,12 @@ def main():
     with open('contracts.json') as json_data:
         CONTRACTS = json.load(json_data)
 
-    cts = []
-    files = [f for f in listdir('../futures-data') if f[-4:] == '.txt']
-    for f in files:
-        with open('../futures-data/'+f) as text:
-            ct = contract.Contract(f[3:-8], text)
-            cts.append(ct)
+    # cts = []
+    # files = [f for f in listdir('../futures-data') if f[-4:] == '.txt']
+    # for f in files:
+    #     with open('../futures-data/'+f) as text:
+    #         ct = contract.Contract(f[3:-8], text)
+    #         cts.append(ct)
 
     trader = level4.Trader()
 
@@ -123,30 +123,33 @@ def main():
     level4.PERIOD_GRID = 3
     level4.BAND_GRID = 0.036
 
-    # with open('../futures-data/28#MA1901.txt') as text:
-    #     ct = contract.Contract('MA', text)
+    sumsharpeM = 0
+    sumsharpeG = 0
+    sumsharpeA = 0
 
-    # sumsharpeM = 0
-    # sumsharpeG = 0
-    # sumsharpeA = 0
+    with open('../futures-data/28#MA1901.txt') as text:
+        ct = contract.Contract('MA', text)
+
     # for ct in cts:
 
-    #     ctt = CONTRACTS[ct.name]
-    #     level4.TICK_PRICE = ctt['tick']
-    #     level4.COST = level4.TICK_PRICE * 0.5
-    #     level4.SLIDE = level4.TICK_PRICE * 1
-    #     cash = ctt['marg'] * ctt['unit']
+        ctt = CONTRACTS[ct.name]
+        level4.TICK_PRICE = ctt['tick']
+        level4.COST = level4.TICK_PRICE * 0.5
+        level4.SLIDE = level4.TICK_PRICE * 1
+        cash = ctt['marg'] * ctt['unit']
 
-    #     trader.traceback(ct.bars, [level4.GridOrder(1), level4.GridOrder(-1)])
-    #     sss = sharpe(trader.profits, cash)
-    #     sumsharpeG += sss
-    #     print("GRID:%s: %.3f, %d, %f" % (ct.name, trader.profits[-1], len(trader.trades), sss))
-    #     # draw(trader)
+        # trader.traceback(ct.bars, [level4.GridOrder(1), level4.GridOrder(-1)])
+        # trader.debugTrade()
+        # sss = sharpe(trader.profits, cash)
+        # sumsharpeG += sss
+        # print("GRID:%s: %.3f, %d, %f" % (ct.name, trader.profits[-1], len(trader.trades), sss))
+        # draw(trader)
 
-    #     trader.traceback(ct.bars, [level4.MAOrder()])
-    #     sss = sharpe(trader.profits, cash)
-    #     sumsharpeM += sss
-    #     print("MA:  %s: %.3f, %d, %f" % (ct.name, trader.profits[-1], len(trader.trades), sss))
+        trader.traceback(ct.bars, [level4.MAOrder()])
+        trader.debugTrade()
+        sss = sharpe(trader.profits, cash)
+        sumsharpeM += sss
+        print("MA:  %s: %.3f, %d, %f" % (ct.name, trader.profits[-1], len(trader.trades), sss))
     #     # draw(trader)
 
     #     trader.traceback(ct.bars, [level4.GridOrder(1), level4.GridOrder(-1), level4.MAOrder()])
@@ -158,7 +161,7 @@ def main():
     # print("\n%f, %f, %f" % (sumsharpeG, sumsharpeM, sumsharpeA))
 
     # optimizeGRID(cts, trader)
-    optimizeMA(cts, trader)
+    # optimizeMA(cts, trader)
 
 
 if __name__ == '__main__':
