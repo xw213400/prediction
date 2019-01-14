@@ -1,0 +1,182 @@
+{
+    "FG":{
+        "tick":1,
+        "marg":3154,
+		"unit":20
+    },
+    "JM": {
+        "tick":0.5,
+        "marg":11366,
+		"unit":60
+    },
+    "MA": {
+        "tick":1,
+        "marg":3227,
+		"unit":10
+    },
+    "RB": {
+        "tick":1,
+        "marg":5560,
+		"unit":10
+    },
+    "SM": {
+        "tick":2,
+        "marg":5537,
+		"unit":5
+    },
+    "L": {
+        "tick":5,
+        "marg":8645,
+		"unit":5
+    },
+    "ZN": {
+        "tick":5,
+        "marg":14326,
+		"unit":5
+    },
+    "HC": {
+        "tick":1,
+        "marg":4718,
+		"unit":10
+    },
+    "Y": {
+        "tick":2,
+        "marg":6085,
+		"unit":10
+    },
+    "A": {
+        "tick":1,
+        "marg":4129,
+		"unit":10
+    },
+    "PP": {
+        "tick":1,
+        "marg":5224,
+		"unit":5
+    },
+    "SF": {
+        "tick":2,
+        "marg":4326,
+		"unit":5
+    },
+    "I": {
+        "tick":0.5,
+        "marg":7112,
+		"unit":100
+    },
+    "SR": {
+        "tick":1,
+        "marg":5198,
+		"unit":10
+    },
+    "RM": {
+        "tick":1,
+        "marg":2616,
+		"unit":10
+    },
+    "TA": {
+        "tick":2,
+        "marg":3508,
+		"unit":5
+    },
+    "M": {
+        "tick":1,
+        "marg":3239,
+		"unit":10
+    },
+    "AP": {
+        "tick":1,
+        "marg":18306,
+		"unit":10
+    },
+    "C": {
+        "tick":1,
+        "marg":1863,
+		"unit":10
+    },
+    "NI": {
+        "tick":10,
+        "marg":12725,
+		"unit":1
+    },
+    "PB": {
+        "tick":5,
+        "marg":11395,
+		"unit":5
+    },
+    "P": {
+        "tick":2,
+        "marg":5104,
+		"unit":10
+    },
+    "RU": {
+        "tick":5,
+        "marg":21150,
+		"unit":10
+    },
+    "OI": {
+        "tick":2,
+        "marg":7854,
+		"unit":10
+    },
+    "ZC": {
+        "tick":0.2,
+        "marg":7896,
+		"unit":100
+    },
+    "JD": {
+        "tick":1,
+        "marg":4453,
+		"unit":10
+    },
+    "BU": {
+        "tick":2,
+        "marg":3881,
+		"unit":10
+    },
+    "CF": {
+        "tick":5,
+        "marg":8979,
+		"unit":5
+    },
+    "CU": {
+        "tick":10,
+        "marg":28548,
+		"unit":5
+    },
+    "AG": {
+        "tick":1,
+        "marg":6207,
+		"unit":15
+    },
+    "V": {
+        "tick":5,
+        "marg":3843,
+		"unit":5
+    },
+    "AU": {
+        "tick":0.05,
+        "marg":25920,
+		"unit":1000
+    },
+    "J": {
+        "tick":0.5,
+        "marg":31088,
+		"unit":100
+    },
+    "SN": {
+        "tick":10,
+        "marg":17408,
+		"unit":1
+    },
+    "CS": {
+        "tick":1,
+        "marg":2335,
+		"unit":10
+    },
+    "AL": {
+        "tick":5,
+        "marg":8079,
+		"unit":5
+    }
+}
