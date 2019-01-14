@@ -13,9 +13,11 @@ class Stock:
     def __init__(self, text):
         self.bars = []
         for line in text.readlines():
-            bar = Bar()
             words = line.split()
-            bar.date = int(words[0].replace('/', ''))
+            if len(words) < 6:
+                continue
+            bar = Bar()
+            bar.date = int(words[0])
             bar.open = float(words[1])
             bar.high = float(words[2])
             bar.low = float(words[3])

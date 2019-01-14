@@ -10,6 +10,7 @@ class Policy:
         self.shares = 0
         self.MA = 0
         self.trade = 0
+        self.closes = []
 
     def init(self, period, deltaRatio, steps):
         self.period = period
@@ -88,6 +89,7 @@ class Policy:
         i = 1
         n = len(bars)
         history = [1]
+        self.closes = [bars[0].close]
 
         mincash = self.cash
         minpos = self.shares
@@ -101,6 +103,7 @@ class Policy:
                             bars[i-self.period-1].close) / self.period
 
             bar = bars[i]
+            self.closes.append(bar.close)
 
             # print("%d, %.3f, %.3f, %.3f, %.3f, MA:%.3f" %
             #       (bar.date, bar.open, bar.high, bar.low, bar.close, self.MA))
